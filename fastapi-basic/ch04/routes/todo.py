@@ -25,13 +25,19 @@ async def add_todo(todo: TodoItem,
 
     return todo_data    
 
-# R
+
+# R : Select
 # all
 @todo_router.get("/todo", response_model=TodoItems)
-async def getAll() -> dict:
-    return {
-        "todos": todo_list
-    }
+async def getAll(db: Session = Depends(get_db)) -> list[TodoItem]:
+    result = db.execute(
+        select(TodoModel).order_by(TodoModel.id)
+    )
+    todos = result.scalars().all()
+
+    return { "todos": todos } # [{"id":1, "item": "HTML"}, ...]
+
+
 
 # id
 @todo_router.get("/todo/{id}")
@@ -45,9 +51,7 @@ async def getId(id: int) -> dict:
         status_code=status.HTTP_404_NOT_FOUND,
         detail="Todo with supplied ID doesn't exist",
     )
-    #return {
-    #    "message": "id가 존재하지 않음!!"
-    #}
+
 
 
 # U

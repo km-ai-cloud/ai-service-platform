@@ -1,18 +1,29 @@
-from fastapi import APIRouter, Path, HTTPException, status
+from fastapi import APIRouter, Path, HTTPException, status, Depends
 from schemas.todo_schema import Todo, TodoItem, TodoItems
+
+from sqlalchemy import delete, select
+from sqlalchemy.orm import Session
+from database import get_db
+from models.todo_model import TodoModel
 
 todo_router = APIRouter()
 
 # todo_list
 todo_list = []
 
-# C
-@todo_router.post("/todo")
-async def add_todo(todo: Todo) -> dict:
-    todo_list.append(todo)
-    return {
-        "message": "Todo 객체 추가 완료!!"
-    }
+# C: Insert 
+@todo_router.post("/todo", 
+                    response_model=Todo,
+                    status_code=status.HTTP_201_CREATED)
+async def add_todo(todo: TodoItem,
+                    db: Session = Depends(get_db)) -> dict:
+    todo_data = TodoModel(item=todo.item)
+
+    db.add(todo_data)
+    db.commit()
+    db.refresh(todo_data)
+
+    return todo_data    
 
 # R
 # all

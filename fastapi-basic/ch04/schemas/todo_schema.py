@@ -1,6 +1,7 @@
 from typing import List
 from pydantic import BaseModel, ConfigDict, Field
 
+
 # TodoItem Model -> 요청 시 호출되는 모델 객체
 class TodoItem(BaseModel):
     item: str
@@ -9,7 +10,7 @@ class TodoItem(BaseModel):
         json_schema_extra={
             "examples": [
                 {
-                    "item": "HTML"
+                    "item":"HTML"
                 }
             ]
         }

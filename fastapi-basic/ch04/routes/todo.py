@@ -74,16 +74,20 @@ async def update_todo(todo_data: TodoItem,
 
 
 # D
-# all
+# all - 전체 삭제
 @todo_router.delete("/todo")
-async def deleteAll() -> dict:
-    if len(todo_list) > 0:
-        todo_list.clear()
+async def deleteAll(db: Session = Depends(get_db)) -> dict:
+    result = db.execute(
+        delete(TodoModel)
+    )
+    db.commit()
+
+    if result.rowcount == 0:
         return {
-            "message": "todo_list 삭제 성공!!"
+            "message": "todos 테이블의 데이터가 존재하지 않음"
         }
     return {
-        "message": "todo_list 데이터가 존재하지 않음"
+        "message": "전체 데이터 삭제 완료!!"
     }
 
 

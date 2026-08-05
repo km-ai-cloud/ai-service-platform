@@ -54,18 +54,24 @@ async def getId(id: int,
 
 
 # U
-@todo_router.put("/todo/{id}")
-async def update_todo(todo_data: TodoItem, id: int = Path(...)) -> dict:
-    for todo in todo_list:
-        if todo.id == id:
-            todo.item = todo_data.item
-            return {
-                "message": "todo 업데이트 성공!!"
-            }
-    raise HTTPException(
+@todo_router.put("/todo/{id}", response_model=Todo)
+async def update_todo(todo_data: TodoItem, 
+                        id: int = Path(...),
+                        db: Session=Depends(get_db)) -> dict:
+    todo = db.get(TodoModel, id) # ORM(SQL 생성) => DB(SQL 실행) => 결과 리턴
+
+    if todo is None:
+        raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Todo with supplied ID doesn't exist",
         )
+
+    todo.item = todo_data.item   # DB Old item => New item 교체
+    db.commit()  # update 실행 - update todos set item=? where id=?
+    db.refresh(todo) # update 실행 - update todos set item='JS' where id=1
+
+    return todo
+
 
 # D
 # all
@@ -80,17 +86,20 @@ async def deleteAll() -> dict:
         "message": "todo_list 데이터가 존재하지 않음"
     }
 
-# id
+
+# id별 todo 삭제
 @todo_router.delete("/todo/{id}")
-async def deleteId(id: int) -> dict:
-    for index in range(len(todo_list)):
-        todo = todo_list[index]
-        if todo.id == id:
-            todo_list.pop(index)
-            return {
-                "message": "todo 삭제 완료!!"
-            }
-    raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Todo with supplied ID doesn't exist",
-        )
+async def deleteId(id: int,
+                    db: Session=Depends(get_db)) -> dict:
+    todo = db.get(TodoModel, id)
+    if todo is None:
+        raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Todo with supplied ID doesn't exist",
+            )
+    db.delete(todo)
+    db.commit()
+
+    return {
+        "message": "todo 삭제 완료!!"
+    }

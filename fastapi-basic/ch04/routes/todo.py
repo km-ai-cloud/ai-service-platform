@@ -35,23 +35,22 @@ async def getAll(db: Session = Depends(get_db)) -> list[TodoItem]:
     )
     todos = result.scalars().all()
 
-    return { "todos": todos } # [{"id":1, "item": "HTML"}, ...]
-
+    return { "todos": todos } # {"todos": [{"id":1, "item": "HTML"}, ...] }
 
 
 # id
-@todo_router.get("/todo/{id}")
-async def getId(id: int) -> dict:
-    for todo in todo_list:
-        if todo.id == id:
-            return {
-                "message": todo
-            }
-    raise HTTPException(
-        status_code=status.HTTP_404_NOT_FOUND,
-        detail="Todo with supplied ID doesn't exist",
-    )
+@todo_router.get("/todo/{id}", response_model=Todo)
+async def getId(id: int,
+                db: Session=Depends(get_db)) -> dict:
+    todo = db.get(TodoModel, id) # -> select ~~
 
+    if todo is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Todo with supplied ID doesn't exist",
+        )
+
+    return todo
 
 
 # U

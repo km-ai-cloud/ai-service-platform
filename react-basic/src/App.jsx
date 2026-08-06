@@ -21,7 +21,7 @@ export default function App() {
 
     //fastapi 호출 : http://127.0.0.1:8000/book => POST
     const response = await fetch(
-      "http://127.0.0.1:8000/book",
+      "/api/book",
       {
         method: "POST",
         headers: {

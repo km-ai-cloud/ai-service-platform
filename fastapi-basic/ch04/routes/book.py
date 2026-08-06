@@ -86,5 +86,33 @@ async def update(new_data:Book_Item,
 
 
 # D: Delete All
-# D: Delete Id
+@book_router.delete("/books")
+async def delete_all(db: Session = Depends(get_db)) -> dict:
+    result = db.execute(  delete(BookModel)   )
+    db.commit()
 
+    if result.rowcount == 0:
+        return {
+            "message": "도서가 존재하지 않습니다."
+        }
+    return {
+        "message": "전체 데이터 삭제 완료!!"
+    }
+
+
+# D: Delete Id
+@book_router.delete("/book/{id}")
+async def delete_id(id: int, db: Session = Depends(get_db)) -> dict:
+    book = db.get(BookModel, id)
+
+    if book is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Id does not exist!!"
+        )
+    db.delete(book)
+    db.commit()
+
+    return {
+        "message": "도서 삭제 완료!!"
+    }

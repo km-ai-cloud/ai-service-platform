@@ -12,11 +12,9 @@ export default function App() {
                           })
   const handleFormChange = (e) => {
     const {name, value} = e.target
-    console.log(name, value)
     setForm({...form, [name]:value })
   }     
-  
-  console.log(form)
+
 
   return (
     <>

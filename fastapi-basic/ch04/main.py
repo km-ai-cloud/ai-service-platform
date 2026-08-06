@@ -24,4 +24,4 @@ app.add_middleware(
 
 
 # app.include_router(todo_router) # todo 애플리케이션
-app.include_router(book_router) # 도서관리 애플리케이션
+app.include_router(book_router, prefix="/api") # 도서관리 애플리케이션

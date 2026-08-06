@@ -13,7 +13,7 @@ book_router = APIRouter()
 
 # C: Insert
 @book_router.post("/book", 
-                    response_model=Book,
+                    # response_model=Book,
                     status_code=status.HTTP_201_CREATED)
 async def add_book(book_data: Book_Item,
                     db:Session = Depends(get_db)) -> dict:
@@ -27,7 +27,17 @@ async def add_book(book_data: Book_Item,
     db.commit()         # DB에 SQL 전송 및 실행
     db.refresh(bookModel)    # 실행 결과(title, price, isbn) 받기
     
-    return bookModel
+    # return bookModel
+    return {
+        "message": "등록 성공!!",
+        "book": {
+                    "id": bookModel.id,
+                    "title": bookModel.title,
+                    "price": bookModel.price,
+                    "isbn": bookModel.isbn
+                }
+    }
+
 
 
 # R: Select All

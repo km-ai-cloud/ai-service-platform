@@ -30,8 +30,10 @@ export default function App() {
         body: JSON.stringify(form)
       }
     )
+    
+    const result = await response.json()
 
-    console.log(response)    
+    console.log(result)    
   }
 
 

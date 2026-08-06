@@ -1,4 +1,6 @@
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
+from typing import List
+
 
 # post 메소드 호출시 매핑되는 모델
 class Book_Item(BaseModel):
@@ -17,7 +19,7 @@ class Book_Item(BaseModel):
             ]
         }
     )
-    
+
 # post 메소드 호출시 매핑되는 모델
 class Book(BaseModel):
     id: int
@@ -37,3 +39,8 @@ class Book(BaseModel):
             ]
         }
     )
+
+
+# Books 클래스 정의
+class Books(BaseModel):
+    books: List[Book] = Field(default_factory=list)

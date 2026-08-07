@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends
-from schemas.book import BookItem, Book
+from schemas.book import BookItem, Book, Books
 from models.book import BookModel
 from sqlalchemy import select, delete
 from sqlalchemy.orm import Session
@@ -48,6 +48,13 @@ async def addBook(bookItem: BookItem,
 
 
 # R: Select All
-@router.get("/books")
-async def getAll() -> list:
-    return()
+@router.get("/books", response_model=Books)
+async def getAll(db: Session=Depends(get_db)) -> list:
+    init_books = db.execute(
+        select(BookModel).order_by(BookModel.id)
+    )
+    books = init_books.scalars().all()  # [{id:1 ...}, {...}...]
+
+    return {
+        "books": books
+    }

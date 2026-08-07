@@ -1,4 +1,5 @@
 from pydantic import BaseModel, ConfigDict, Field
+from typing import List
 
 class BookItem(BaseModel):
     title: str
@@ -28,3 +29,6 @@ class Book(BaseModel):
     publisher: str
     year: str
     status: str
+
+class Books(BaseModel):
+    books: List[Book] = Field(default_factory=list)

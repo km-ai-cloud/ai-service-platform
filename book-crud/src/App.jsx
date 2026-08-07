@@ -31,9 +31,19 @@ export default function App() {
 
     if (isEditing) {
       //수정
-      setBooks((prev) =>
-        prev.map((b) => (b.id === editingId ? { ...b, ...form, year: Number(form.year) || '' } : b))
-      );
+      const response = await fetch(
+                    `/fastapi/book/${editingId}`, 
+                    {
+                      "method": "PUT",
+                      "headers": {
+                        "Content-Type": "application/json"
+                      },
+                      "body": JSON.stringify(form)
+                    })
+                    
+      const data = await response.json()
+      if(data.isUpdate) setIsLoad(!isLoad)     
+
     } else {
       const newBook = {
         ...form,

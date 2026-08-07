@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Path
 from schemas.book import BookItem, Book, Books
 from models.book import BookModel
 from sqlalchemy import select, delete
@@ -53,6 +53,30 @@ async def getAll(db: Session=Depends(get_db)) -> list:
 # R : Select ID
 
 # U : Update
+@router.put("/book/{id}")
+async def updateId(newData: BookItem, 
+                    id:int = Path(...),
+                    db: Session = Depends(get_db)) -> dict:
+    book = db.get(BookModel, id)
+    
+    if book is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Id does not exist!"
+        )
+    book.title = newData.title
+    book.author = newData.author
+    book.publisher = newData.publisher
+    book.year = newData.year
+    book.status = newData.status
+
+    db.commit()
+    
+    return {
+        "isUpdate": True
+    }
+
+
 
 # D : Delete ID
 @router.delete("/book/{id}")

@@ -21,7 +21,7 @@ export default function App() {
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async(e) => {
     e.preventDefault();
     if (!form.title.trim() || !form.author.trim()) {
       alert('제목과 저자는 필수입니다.');
@@ -29,16 +29,24 @@ export default function App() {
     }
 
     if (isEditing) {
+      //수정
       setBooks((prev) =>
         prev.map((b) => (b.id === editingId ? { ...b, ...form, year: Number(form.year) || '' } : b))
       );
     } else {
       const newBook = {
-        id: Date.now(),
         ...form,
-        year: Number(form.year) || '',
+        year: String(form.year) || '',
       };
       setBooks((prev) => [newBook, ...prev]);
+
+      //FastAPI 연동!!
+      console.log('newBook ==>', newBook);
+      const response = await fetch("http://127.0.0.1:8000/fastapi/book", {})
+      const data = await response.json()
+
+      console.log('data ==>>', data);      
+
     }
     handleCancel();
   };

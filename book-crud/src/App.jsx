@@ -9,11 +9,11 @@ const initialBooks = [
 const emptyForm = { title: '', author: '', publisher: '', year: '', status: '대여가능' };
 
 export default function App() {
-  // const [books, setBooks] = useState(initialBooks);
   const [form, setForm] = useState(emptyForm);
   const [editingId, setEditingId] = useState(null);
   const [keyword, setKeyword] = useState('');
   const [books, setBooks] = useState([]);
+  const [isLoad, setIsLoad] = useState(false); //false => true
 
   const isEditing = editingId !== null;
 
@@ -54,6 +54,7 @@ export default function App() {
                     })
                     
       const data = await response.json()
+      if(data !== null) setIsLoad(!isLoad)
 
       console.log('data ==>>', data);      
       // console.log('data ==>>', data.book.title);      
@@ -73,10 +74,23 @@ export default function App() {
     });
   };
 
-  const handleDelete = (id) => {
+  const handleDelete = async(id) => {
     if (!confirm('이 도서를 삭제하시겠습니까?')) return;
-    setBooks((prev) => prev.filter((b) => b.id !== id));
-    if (editingId === id) handleCancel();
+    const response = await fetch(
+                    `/fastapi/book/${id}`, 
+                    {
+                      "method": "DELETE",
+                      "headers": {
+                        "Content-Type": "application/json"
+                      },
+                      "body": null
+                    })
+                    
+      const data = await response.json()
+      console.log(data)
+      if(data.isDelete) setIsLoad(!isLoad)
+
+
   };
 
   const handleCancel = () => {
@@ -92,25 +106,12 @@ export default function App() {
 
   useEffect(()=>{
     const loadFetch= async() => {
-      const response = await fetch(
-                    "/fastapi/books", 
-                    {
-                      "method": "GET",
-                      "headers": {
-                        "Content-Type": "application/json"
-                      },
-                      "body": null
-                    })
-                    
+      const response = await fetch("/fastapi/books")                    
       const data = await response.json()
       setBooks(data.books);
     }
-
     loadFetch()
-  }, [])
-
-
-
+  }, [isLoad])
 
   return (
     <div className="page">

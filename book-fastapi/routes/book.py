@@ -12,7 +12,7 @@ router = APIRouter()
 books = []
 
 # C: Insert
-@router.post("/book")
+@router.post("/book", response_model=Book)
 async def addBook(bookItem: BookItem,                    
                     db: Session=Depends(get_db)) -> dict:
     
@@ -34,17 +34,7 @@ async def addBook(bookItem: BookItem,
     # 4. db.refresh(모델타입) - 실행 결과 가져오기
     db.refresh(bookModel)
 
-    return {
-        "message": "등록 성공!!",
-        "book": {
-            "id": bookModel.id,
-            "title": bookModel.title,
-            "author": bookModel.author,
-            "publisher": bookModel.publisher,
-            "year": bookModel.year,
-            "status": bookModel.status,
-        }
-    }
+    return bookModel
 
 
 # R: Select All
@@ -58,3 +48,4 @@ async def getAll(db: Session=Depends(get_db)) -> list:
     return {
         "books": books
     }
+

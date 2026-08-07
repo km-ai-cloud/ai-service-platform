@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 const initialBooks = [
   { id: 1, title: '자바의 정석', author: '남궁성', publisher: '도우출판', year: 2016, status: '대여가능' },
@@ -9,10 +9,11 @@ const initialBooks = [
 const emptyForm = { title: '', author: '', publisher: '', year: '', status: '대여가능' };
 
 export default function App() {
-  const [books, setBooks] = useState(initialBooks);
+  // const [books, setBooks] = useState(initialBooks);
   const [form, setForm] = useState(emptyForm);
   const [editingId, setEditingId] = useState(null);
   const [keyword, setKeyword] = useState('');
+  const [books, setBooks] = useState([]);
 
   const isEditing = editingId !== null;
 
@@ -54,8 +55,8 @@ export default function App() {
                     
       const data = await response.json()
 
-      console.log('data ==>>', data.message);      
-      console.log('data ==>>', data.book.title);      
+      console.log('data ==>>', data);      
+      // console.log('data ==>>', data.book.title);      
 
     }
     handleCancel();
@@ -88,6 +89,28 @@ export default function App() {
       b.title.toLowerCase().includes(keyword.toLowerCase()) ||
       b.author.toLowerCase().includes(keyword.toLowerCase())
   );
+
+  useEffect(()=>{
+    const loadFetch= async() => {
+      const response = await fetch(
+                    "/fastapi/books", 
+                    {
+                      "method": "GET",
+                      "headers": {
+                        "Content-Type": "application/json"
+                      },
+                      "body": null
+                    })
+                    
+      const data = await response.json()
+      setBooks(data.books);
+    }
+
+    loadFetch()
+  }, [])
+
+
+
 
   return (
     <div className="page">
@@ -159,14 +182,14 @@ export default function App() {
           </tr>
         </thead>
         <tbody>
-          {filteredBooks.length === 0 ? (
+          {books.length === 0 ? (
             <tr>
               <td colSpan={6} className="empty-row">
                 등록된 도서가 없습니다.
               </td>
             </tr>
           ) : (
-            filteredBooks.map((book) => (
+            books.map((book) => (
               <tr key={book.id} className={editingId === book.id ? 'row-editing' : ''}>
                 <td>{book.title}</td>
                 <td>{book.author}</td>
